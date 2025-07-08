@@ -1,4 +1,5 @@
 let currentSong=new Audio()
+let songs;
 async function getSongs(){
     let a = await fetch("http://127.0.0.1:3000/songs/")
     let response = await a.text()
@@ -41,7 +42,7 @@ const playMusic=(track,pause=false)=>{
 
 async function main(){
     //get list of songs
-    let songs=await getSongs()
+    songs=await getSongs()
     playMusic(songs[0],true)
     play.src="pause.svg"
     //show all songs in playlist
@@ -81,8 +82,7 @@ async function main(){
     //listen for time update event
     currentSong.addEventListener("timeupdate",()=>{
         document.querySelector(".songtime").innerHTML=`
-        ${secondsToMinutesSeconds(currentSong.currentTime)}/
-        ${secondsToMinutesSeconds(currentSong.duration)}`
+        ${secondsToMinutesSeconds(currentSong.currentTime)} / ${secondsToMinutesSeconds(currentSong.duration)}`
         document.querySelector(".circle").style.left=(currentSong.currentTime/currentSong.duration)*100+"%"
     })
 
@@ -92,5 +92,33 @@ async function main(){
         document.querySelector(".circle").style.left=percent+"%"
         currentSong.currentTime=((currentSong.duration)*percent)/100
     })
+
+    //add event listener for hamburger
+    document.querySelector(".hamburger").addEventListener("click",()=>{
+        document.querySelector(".left").style.left="0"
+    })
+
+    //add event listener for close button
+    document.querySelector(".close").addEventListener("click",()=>{
+        document.querySelector(".left").style.left="-120%"
+    })
+
+    //add event listener to previous
+    previous.addEventListener("click",()=>{
+        let index=songs.indexOf(currentSong.src.split('/songs/')[1])
+        if ((index-1)>=0) {
+            playMusic(songs[index-1])
+        }
+        
+    })
+    //add event listener to next
+    next.addEventListener("click",()=>{
+        let index=songs.indexOf(currentSong.src.split('/songs/')[1])
+        if ((index+1)<=songs.length-1) {
+            playMusic(songs[index+1])
+        }
+        
+    })
+
 } 
 main()
